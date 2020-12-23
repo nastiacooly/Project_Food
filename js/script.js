@@ -105,7 +105,10 @@ window.addEventListener('DOMContentLoaded', () => {
         millisecondsInASecond = 1000,
         millisecondsInADay = millisecondsInASecond * 60 * 60 * 24,
         millisecondsInAnHour = millisecondsInASecond * 60 * 60,
-        millisecondsInAMinute = millisecondsInASecond * 60; //Tabs
+        millisecondsInAMinute = millisecondsInASecond * 60,
+        modal = document.querySelector('.modal'),
+        openModalButtons = document.querySelectorAll('[data-modal="open"]'),
+        closeModalButton = document.querySelector('[data-modal="close"]'); //Tabs
   //functions for tabs
 
   const hideTabContent = () => {
@@ -194,7 +197,35 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  setTimer(".timer", deadline);
+  setTimer(".timer", deadline); //Modal window open/close
+
+  const toggleModal = () => {
+    modal.classList.toggle('hide');
+    modal.classList.toggle('show');
+
+    if (modal.classList.contains('show')) {
+      document.body.style.overflow = 'hidden'; //unscroll window while modal is on
+    } else {
+      document.body.style.overflow = ''; //default value
+    }
+  };
+
+  openModalButtons.forEach(btn => {
+    btn.addEventListener('click', toggleModal);
+  });
+  closeModalButton.addEventListener('click', toggleModal);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      //clicking on a background of modal
+      toggleModal();
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.code === "Escape" && modal.classList.contains('show')) {
+      //pressing Esc when modal is open
+      toggleModal();
+    }
+  });
 });
 
 /***/ })

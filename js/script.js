@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const tabs = document.querySelectorAll('.tabheader__item'),
         tabsContent = document.querySelectorAll('.tabcontent'),
         tabsParent = document.querySelector('.tabheader__items'),
-        deadline = '2020-12-31',
+        deadline = '2021-12-31',
         millisecondsInASecond = 1000,
         millisecondsInADay = millisecondsInASecond * 60 * 60 * 24,
         millisecondsInAnHour = millisecondsInASecond * 60 * 60,
@@ -208,6 +208,8 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       document.body.style.overflow = ''; //default value
     }
+
+    clearInterval(modalTimer); //to stop setTimeout after first opening of modal
   };
 
   openModalButtons.forEach(btn => {
@@ -226,6 +228,17 @@ window.addEventListener('DOMContentLoaded', () => {
       toggleModal();
     }
   });
+  const modalTimer = setTimeout(toggleModal, 6000); //opens modal after 6s
+
+  const openModalByScroll = () => {
+    //opens modal when page is scrolled to its bottom
+    if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+      toggleModal();
+      window.removeEventListener('scroll', openModalByScroll); //not to open every time at the bottom
+    }
+  };
+
+  window.addEventListener('scroll', openModalByScroll);
 });
 
 /***/ })

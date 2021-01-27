@@ -108,7 +108,8 @@ window.addEventListener('DOMContentLoaded', () => {
         millisecondsInAMinute = millisecondsInASecond * 60,
         modal = document.querySelector('.modal'),
         openModalButtons = document.querySelectorAll('[data-modal="open"]'),
-        closeModalButton = document.querySelector('[data-modal="close"]'); //Tabs
+        closeModalButton = document.querySelector('[data-modal="close"]'),
+        forms = document.querySelectorAll('form'); //Tabs
   //functions for tabs
 
   const hideTabContent = () => {
@@ -287,7 +288,51 @@ window.addEventListener('DOMContentLoaded', () => {
 
   new MenuItem("img/tabs/vegy.jpg", "vegy", 'Меню "Фитнес"', 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 4, ".menu__field > .container").render();
   new MenuItem("img/tabs/elite.jpg", "elite", 'Меню "Премиум"', 'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', 8, ".menu__field > .container").render();
-  new MenuItem("img/tabs/post.jpg", "post", 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, растительное молоко, правильное количество белков за счет тофу и вегетарианских стейков.', 6, ".menu__field > .container").render();
+  new MenuItem("img/tabs/post.jpg", "post", 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, растительное молоко, правильное количество белков за счет тофу и вегетарианских стейков.', 6, ".menu__field > .container").render(); //Sending forms to server
+
+  const message = {
+    loading: 'Загрузка',
+    success: 'Спасибо! Скоро мы с вами свяжемся.',
+    fail: 'Что-то пошло не так...'
+  };
+  forms.forEach(form => {
+    //для каждой формы вызываем функцию postData
+    postData(form);
+  });
+
+  function postData(form) {
+    form.addEventListener('submit', e => {
+      e.preventDefault(); //убираем стандартное поведение браузера при отправке формы
+      //создаем блок для сообщения пользователю о статусе отправки формы
+
+      const statusMessage = document.createElement('div');
+      statusMessage.classList.add('status');
+      statusMessage.textContent = message.loading;
+      form.append(statusMessage); //выводим блок в конце формы
+
+      const request = new XMLHttpRequest();
+      request.open('POST', 'server.php'); //создаем POST-запрос
+
+      const formData = new FormData(form); //переформатируем данные формы в FormData
+
+      request.send(formData); //отправляем данные на сервер
+
+      request.addEventListener('load', () => {
+        //событие при завершении POST-запроса
+        if (request.status === 200) {
+          //если запрос выполнен успешно
+          statusMessage.textContent = message.success;
+          form.reset(); //очистка формы на странице
+
+          setTimeout(() => {
+            statusMessage.remove();
+          }, 2000); //убираем сообщение о статусе через 2 сек
+        } else {
+          statusMessage.textContent = message.fail;
+        }
+      });
+    });
+  }
 });
 
 /***/ })

@@ -286,7 +286,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   new MenuItem("img/tabs/vegy.jpg", "vegy", 'Меню "Фитнес"', 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 4, ".menu__field > .container").render();
   new MenuItem("img/tabs/elite.jpg", "elite", 'Меню "Премиум"', 'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', 8, ".menu__field > .container").render();
-  new MenuItem("img/tabs/post.jpg", "post", 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, растительное молоко, правильное количество белков за счет тофу и вегетарианских стейков.', 6, ".menu__field > .container").render(); //Sending forms to server and showing status messages to user
+  new MenuItem("img/tabs/post.jpg", "post", 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, растительное молоко, правильное количество белков за счет тофу и вегетарианских стейков.', 6, ".menu__field > .container").render(); //Sending forms to server via Fetch API and showing status messages to user
 
   const message = {
     loading: 'img/form/spinner.svg',
@@ -312,23 +312,28 @@ window.addEventListener('DOMContentLoaded', () => {
             `;
       form.insertAdjacentElement('afterend', statusMessage); //выводим блок в конце формы
 
-      const request = new XMLHttpRequest();
-      request.open('POST', 'server.php'); //создаем POST-запрос
-
       const formData = new FormData(form); //переформатируем данные формы в FormData
 
-      request.send(formData); //отправляем данные на сервер
+      fetch('server.php', {
+        method: 'POST',
+        //POST-запрос
 
-      request.addEventListener('load', () => {
-        //событие при завершении POST-запроса
-        if (request.status === 200) {
-          //если запрос выполнен успешно
-          statusMessage.remove();
-          showStatusModal(message.success);
-          form.reset(); //очистка формы на странице
-        } else {
-          showStatusModal(message.fail);
-        }
+        /* headers: { //формат данных для JSON
+            'Content-type': 'application/json'
+        }, */
+        body: formData
+      }).then(data => {
+        //действия при успешности запроса
+        console.log(data.text()); //показываем полученный от сервера ответ для проверки
+
+        statusMessage.remove();
+        showStatusModal(message.success);
+      }).catch(() => {
+        //действия при неуспешности запроса
+        showStatusModal(message.fail);
+      }).finally(() => {
+        //действия при любом исходе запроса
+        form.reset(); //очистка формы на странице
       });
     });
   }

@@ -237,7 +237,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  window.addEventListener('scroll', openModalByScroll); //Classes for menu items
+  window.addEventListener('scroll', openModalByScroll); //Class for menu items and rendering with GET-requests
 
   class MenuItem {
     constructor(src, alt, title, descr, price, parentSelector, ...classes) {
@@ -284,9 +284,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
   }
 
-  new MenuItem("img/tabs/vegy.jpg", "vegy", 'Меню "Фитнес"', 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 4, ".menu__field > .container").render();
-  new MenuItem("img/tabs/elite.jpg", "elite", 'Меню "Премиум"', 'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', 8, ".menu__field > .container").render();
-  new MenuItem("img/tabs/post.jpg", "post", 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, растительное молоко, правильное количество белков за счет тофу и вегетарианских стейков.', 6, ".menu__field > .container").render(); //Sending forms to server via Fetch API and showing status messages to user
+  const getResource = async url => {
+    //общая функция для настройки GET-запросов с сервера
+    const result = await fetch(url); //get-запрос
+
+    if (!result.ok) {
+      //если запрос выдал ошибку 404 и т.п.
+      throw new Error(`Could not get resources from ${url}, status: ${result.status}`);
+    }
+
+    return await result.json(); //это Promise, который при успехе декодирует ответ от сервера в формат JS
+  };
+
+  getResource('http://localhost:3000/menu') //получаем данные с JSON-сервера про меню
+  .then(data => {
+    data.forEach(({
+      img,
+      altimg,
+      title,
+      descr,
+      price
+    }) => {
+      //деструктурируем объекты из массива menu db.json
+      new MenuItem( //передаем классу в качестве аргументов ключи объектов menu db.json
+      img, altimg, title, descr, price, ".menu__field > .container").render(); //метод класса для верстки
+    }); //можно также создавать верстку не через класс, а через обычные команды, которые мы прописали в render()
+  }); //Sending forms to server via Fetch API and showing status messages to user
 
   const message = {
     loading: 'img/form/spinner.svg',
@@ -294,11 +317,23 @@ window.addEventListener('DOMContentLoaded', () => {
     fail: 'Что-то пошло не так...'
   };
   forms.forEach(form => {
-    //для каждой формы вызываем функцию postData
-    postData(form);
+    //для каждой формы вызываем функцию bindPostData
+    bindPostData(form);
   });
 
-  function postData(form) {
+  const postData = async (url, data) => {
+    //общая функция для настройки POST-запросов на сервер
+    const result = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: data
+    });
+    return await result.json(); //это Promise, который при успехе декодирует ответ от сервера в формат JS
+  };
+
+  function bindPostData(form) {
     form.addEventListener('submit', e => {
       e.preventDefault(); //убираем стандартное поведение браузера при отправке формы
       //создаем блок для значка загрузки
@@ -314,17 +349,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
       const formData = new FormData(form); //переформатируем данные формы в FormData
 
-      fetch('server.php', {
-        method: 'POST',
-        //POST-запрос
+      const json = JSON.stringify(Object.fromEntries(formData.entries())); //formData переводим в формат JSON
 
-        /* headers: { //формат данных для JSON
-            'Content-type': 'application/json'
-        }, */
-        body: formData
-      }).then(data => {
+      postData('http://localhost:3000/requests', json).then(data => {
         //действия при успешности запроса
-        console.log(data.text()); //показываем полученный от сервера ответ для проверки
+        console.log(data); //показываем полученный от сервера ответ для проверки
 
         statusMessage.remove();
         showStatusModal(message.success);

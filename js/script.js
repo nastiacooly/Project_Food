@@ -108,7 +108,12 @@ window.addEventListener('DOMContentLoaded', () => {
         millisecondsInAMinute = millisecondsInASecond * 60,
         modal = document.querySelector('.modal'),
         openModalButtons = document.querySelectorAll('[data-modal="open"]'),
-        forms = document.querySelectorAll('form'); //Tabs
+        forms = document.querySelectorAll('form'),
+        slides = document.querySelectorAll('.offer__slide'),
+        prevSlideBtn = document.querySelector('.offer__slider-prev'),
+        nextSlideBtn = document.querySelector('.offer__slider-next'),
+        currentSlideIndex = document.querySelector('#current'),
+        totalSlidesNumber = document.querySelector('#total'); //Tabs
   //functions for tabs
 
   const hideTabContent = () => {
@@ -407,7 +412,49 @@ window.addEventListener('DOMContentLoaded', () => {
         toggleModal();
       }
     }, 4000); //returns previous modal after 4s
+  } //Slider - first option
+
+
+  let slideIndex = 1;
+  showSlideByIndex(slideIndex);
+
+  if (slides.length < 10) {
+    totalSlidesNumber.textContent = `0${slides.length}`;
+  } else {
+    totalSlidesNumber.textContent = slides.length;
   }
+
+  function showSlideByIndex(index) {
+    if (index > slides.length) {
+      slideIndex = 1; //если долистали до последнего слайда, снова включаем первый
+    }
+
+    if (index < 1) {
+      slideIndex = slides.length; //если листаем влево от первого слайда, то включаем последний
+    }
+
+    slides.forEach(slide => slide.classList.add('hide'));
+    slides[slideIndex - 1].classList.add('show');
+    slides[slideIndex - 1].classList.remove('hide');
+
+    if (slides.length < 10) {
+      //приписываем нолик маленьким цифрам
+      currentSlideIndex.textContent = `0${slideIndex}`;
+    } else {
+      currentSlideIndex.textContent = `${slideIndex}`;
+    }
+  }
+
+  function changeSlideIndexByN(n) {
+    showSlideByIndex(slideIndex += n);
+  }
+
+  prevSlideBtn.addEventListener('click', () => {
+    changeSlideIndexByN(-1);
+  });
+  nextSlideBtn.addEventListener('click', () => {
+    changeSlideIndexByN(1);
+  });
 });
 
 /***/ })

@@ -295,20 +295,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
     return await result.json(); //это Promise, который при успехе декодирует ответ от сервера в формат JS
   };
-
-  getResource('http://localhost:3000/menu') //получаем данные с JSON-сервера про меню
+  /* getResource('http://localhost:3000/menu') //получаем данные с JSON-сервера про меню
   .then(data => {
-    data.forEach(({
+      data.forEach(({img, altimg, title, descr, price}) => { //деструктурируем объекты из массива menu db.json
+          new MenuItem( //передаем классу в качестве аргументов ключи объектов menu db.json
+              img, 
+              altimg, 
+              title, 
+              descr, 
+              price, 
+              ".menu__field > .container"
+          ).render(); //метод класса для верстки
+      }); //можно также создавать верстку не через класс, а через обычные команды, которые мы прописали в render()
+  }); */
+
+
+  axios.get('http://localhost:3000/menu') //get-запрос при помощи библиотеки axios
+  .then(data => {
+    data.data.forEach(({
       img,
       altimg,
       title,
       descr,
       price
     }) => {
-      //деструктурируем объекты из массива menu db.json
-      new MenuItem( //передаем классу в качестве аргументов ключи объектов menu db.json
-      img, altimg, title, descr, price, ".menu__field > .container").render(); //метод класса для верстки
-    }); //можно также создавать верстку не через класс, а через обычные команды, которые мы прописали в render()
+      new MenuItem(img, altimg, title, descr, price, ".menu__field > .container").render();
+    });
   }); //Sending forms to server via Fetch API and showing status messages to user
 
   const message = {

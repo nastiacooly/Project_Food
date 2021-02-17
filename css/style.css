@@ -116,7 +116,7 @@ a {
   to {
     opacity: 1; } }
 
-.carousel-indicators {
+.slider-indicators {
   position: absolute;
   right: 0;
   bottom: 0;

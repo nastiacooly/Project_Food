@@ -113,7 +113,10 @@ window.addEventListener('DOMContentLoaded', () => {
         prevSlideBtn = document.querySelector('.offer__slider-prev'),
         nextSlideBtn = document.querySelector('.offer__slider-next'),
         currentSlideIndex = document.querySelector('#current'),
-        totalSlidesNumber = document.querySelector('#total'); //Tabs
+        totalSlidesNumber = document.querySelector('#total'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-innerwrapper'),
+        widthForSlider = window.getComputedStyle(slidesWrapper).width; //Tabs
   //functions for tabs
 
   const hideTabContent = () => {
@@ -412,49 +415,101 @@ window.addEventListener('DOMContentLoaded', () => {
         toggleModal();
       }
     }, 4000); //returns previous modal after 4s
-  } //Slider - first option
+  } //Slider
 
 
   let slideIndex = 1;
-  showSlideByIndex(slideIndex);
+  let slideOffset = 0;
 
   if (slides.length < 10) {
     totalSlidesNumber.textContent = `0${slides.length}`;
+    currentSlideIndex.textContent = `0${slideIndex}`;
   } else {
     totalSlidesNumber.textContent = slides.length;
+    currentSlideIndex.textContent = slideIndex;
   }
 
-  function showSlideByIndex(index) {
-    if (index > slides.length) {
-      slideIndex = 1; //если долистали до последнего слайда, снова включаем первый
-    }
-
-    if (index < 1) {
-      slideIndex = slides.length; //если листаем влево от первого слайда, то включаем последний
-    }
-
-    slides.forEach(slide => slide.classList.add('hide'));
-    slides[slideIndex - 1].classList.add('show');
-    slides[slideIndex - 1].classList.remove('hide');
-
-    if (slides.length < 10) {
-      //приписываем нолик маленьким цифрам
-      currentSlideIndex.textContent = `0${slideIndex}`;
-    } else {
-      currentSlideIndex.textContent = `${slideIndex}`;
-    }
-  }
-
-  function changeSlideIndexByN(n) {
-    showSlideByIndex(slideIndex += n);
-  }
-
-  prevSlideBtn.addEventListener('click', () => {
-    changeSlideIndexByN(-1);
+  slidesField.style.display = 'flex';
+  slidesField.style.width = 100 * slides.length + '%';
+  slidesField.style.transition = '0.5s all';
+  slidesWrapper.style.overflow = 'hidden';
+  slides.forEach(slide => {
+    slide.style.width = widthForSlider;
   });
   nextSlideBtn.addEventListener('click', () => {
-    changeSlideIndexByN(1);
+    if (slideOffset == +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1)) {
+      slideOffset = 0;
+    } else {
+      slideOffset += +widthForSlider.slice(0, widthForSlider.length - 2);
+    }
+
+    slidesField.style.transform = `translateX(-${slideOffset}px)`;
+
+    if (slideIndex == slides.length) {
+      slideIndex = 1;
+    } else {
+      slideIndex++;
+    }
+
+    if (slides.length < 10) {
+      currentSlideIndex.textContent = `0${slideIndex}`;
+    } else {
+      currentSlideIndex.textContent = slideIndex;
+    }
   });
+  prevSlideBtn.addEventListener('click', () => {
+    if (slideOffset == 0) {
+      slideOffset = +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1);
+    } else {
+      slideOffset -= +widthForSlider.slice(0, widthForSlider.length - 2);
+    }
+
+    slidesField.style.transform = `translateX(-${slideOffset}px)`;
+
+    if (slideIndex == 1) {
+      slideIndex = slides.length;
+    } else {
+      slideIndex--;
+    }
+
+    if (slides.length < 10) {
+      currentSlideIndex.textContent = `0${slideIndex}`;
+    } else {
+      currentSlideIndex.textContent = slideIndex;
+    }
+  });
+  /* Slider - First option
+    showSlideByIndex(slideIndex);
+    if (slides.length < 10) {
+      totalSlidesNumber.textContent = `0${slides.length}`;
+  } else {
+      totalSlidesNumber.textContent = slides.length;
+  }
+    function showSlideByIndex(index) {
+        if (index > slides.length) {
+          slideIndex = 1; //если долистали до последнего слайда, снова включаем первый
+      }
+        if (index < 1) {
+          slideIndex = slides.length; //если листаем влево от первого слайда, то включаем последний
+      }
+        slides.forEach(slide => slide.classList.add('hide'));
+      slides[slideIndex - 1].classList.add('show');
+      slides[slideIndex - 1].classList.remove('hide');
+        if (slides.length < 10) { //приписываем нолик маленьким цифрам
+          currentSlideIndex.textContent = `0${slideIndex}`;
+      } else {
+          currentSlideIndex.textContent = `${slideIndex}`;
+      }
+  }
+    function changeSlideIndexByN(n) {
+      showSlideByIndex(slideIndex += n);
+  }
+    prevSlideBtn.addEventListener('click', () => {
+      changeSlideIndexByN(-1);
+  });
+    nextSlideBtn.addEventListener('click', () => {
+      changeSlideIndexByN(1);
+  }); */
 });
 
 /***/ })

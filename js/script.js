@@ -421,21 +421,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let slideIndex = 1;
   let slideOffset = 0;
+  const width = +widthForSlider.slice(0, widthForSlider.length - 2); //ширина в цифрах из CSS (без приписки px)
 
-  if (slides.length < 10) {
-    totalSlidesNumber.textContent = `0${slides.length}`;
-    currentSlideIndex.textContent = `0${slideIndex}`;
-  } else {
-    totalSlidesNumber.textContent = slides.length;
-    currentSlideIndex.textContent = slideIndex;
+  function changeTotalSlidesNumberIndicator(totalIndicator) {
+    if (slides.length < 10) {
+      totalIndicator.textContent = `0${slides.length}`;
+    } else {
+      totalIndicator.textContent = slides.length;
+    }
   }
 
+  function changeCurrentSlideNumberIndicator(currentIndicator) {
+    if (slides.length < 10) {
+      currentIndicator.textContent = `0${slideIndex}`;
+    } else {
+      currentIndicator.textContent = slideIndex;
+    }
+  }
+
+  changeTotalSlidesNumberIndicator(totalSlidesNumber);
+  changeCurrentSlideNumberIndicator(currentSlideIndex);
   slidesField.style.display = 'flex';
   slidesField.style.width = 100 * slides.length + '%';
   slidesField.style.transition = '0.5s all';
   slidesWrapper.style.overflow = 'hidden';
   slides.forEach(slide => {
-    slide.style.width = widthForSlider;
+    slide.style.width = widthForSlider; //чтобы все картинки были одинаковой ширины
   }); //for creating navigation dots
 
   slider.style.position = 'relative';
@@ -455,14 +466,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
     sliderDots.append(dot);
     dots.push(dot);
+  }
+
+  function lightenActiveDot() {
+    dots.forEach(dot => dot.style.opacity = '.5');
+    dots[slideIndex - 1].style.opacity = 1;
   } //end of creating nav dots
 
 
   nextSlideBtn.addEventListener('click', () => {
-    if (slideOffset == +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1)) {
+    if (slideOffset == width * (slides.length - 1)) {
       slideOffset = 0;
     } else {
-      slideOffset += +widthForSlider.slice(0, widthForSlider.length - 2);
+      slideOffset += width;
     }
 
     slidesField.style.transform = `translateX(-${slideOffset}px)`;
@@ -473,20 +489,14 @@ window.addEventListener('DOMContentLoaded', () => {
       slideIndex++;
     }
 
-    if (slides.length < 10) {
-      currentSlideIndex.textContent = `0${slideIndex}`;
-    } else {
-      currentSlideIndex.textContent = slideIndex;
-    }
-
-    dots.forEach(dot => dot.style.opacity = '.5');
-    dots[slideIndex - 1].style.opacity = 1;
+    changeCurrentSlideNumberIndicator(currentSlideIndex);
+    lightenActiveDot();
   });
   prevSlideBtn.addEventListener('click', () => {
     if (slideOffset == 0) {
-      slideOffset = +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1);
+      slideOffset = width * (slides.length - 1);
     } else {
-      slideOffset -= +widthForSlider.slice(0, widthForSlider.length - 2);
+      slideOffset -= width;
     }
 
     slidesField.style.transform = `translateX(-${slideOffset}px)`;
@@ -497,30 +507,17 @@ window.addEventListener('DOMContentLoaded', () => {
       slideIndex--;
     }
 
-    if (slides.length < 10) {
-      currentSlideIndex.textContent = `0${slideIndex}`;
-    } else {
-      currentSlideIndex.textContent = slideIndex;
-    }
-
-    dots.forEach(dot => dot.style.opacity = '.5');
-    dots[slideIndex - 1].style.opacity = 1;
+    changeCurrentSlideNumberIndicator(currentSlideIndex);
+    lightenActiveDot();
   });
   dots.forEach(dot => {
     dot.addEventListener('click', e => {
       const slideTo = e.target.getAttribute('data-slide-to');
       slideIndex = slideTo;
-      slideOffset = +widthForSlider.slice(0, widthForSlider.length - 2) * (slideTo - 1);
+      slideOffset = width * (slideTo - 1);
       slidesField.style.transform = `translateX(-${slideOffset}px)`;
-
-      if (slides.length < 10) {
-        currentSlideIndex.textContent = `0${slideIndex}`;
-      } else {
-        currentSlideIndex.textContent = slideIndex;
-      }
-
-      dots.forEach(dot => dot.style.opacity = '.5');
-      dots[slideIndex - 1].style.opacity = 1;
+      changeCurrentSlideNumberIndicator(currentSlideIndex);
+      lightenActiveDot();
     });
   }); //end of slider
 

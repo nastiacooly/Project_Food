@@ -1837,7 +1837,8 @@ window.addEventListener('DOMContentLoaded', () => {
         totalSlidesNumber = document.querySelector('#total'),
         slidesWrapper = document.querySelector('.offer__slider-wrapper'),
         slidesField = document.querySelector('.offer__slider-innerwrapper'),
-        widthForSlider = window.getComputedStyle(slidesWrapper).width; //Tabs
+        widthForSlider = window.getComputedStyle(slidesWrapper).width,
+        calcResult = document.querySelector('.calculating__result span'); //Tabs
   //functions for tabs
 
   const hideTabContent = () => {
@@ -2024,33 +2025,35 @@ window.addEventListener('DOMContentLoaded', () => {
 
     return await result.json(); //это Promise, который при успехе декодирует ответ от сервера в формат JS
   };
-  /* getResource('http://localhost:3000/menu') //получаем данные с JSON-сервера про меню
-  .then(data => {
-      data.forEach(({img, altimg, title, descr, price}) => { //деструктурируем объекты из массива menu db.json
-          new MenuItem( //передаем классу в качестве аргументов ключи объектов menu db.json
-              img, 
-              altimg, 
-              title, 
-              descr, 
-              price, 
-              ".menu__field > .container"
-          ).render(); //метод класса для верстки
-      }); //можно также создавать верстку не через класс, а через обычные команды, которые мы прописали в render()
-  }); */
 
-
-  axios.get('http://localhost:3000/menu') //get-запрос при помощи библиотеки axios
+  getResource('http://localhost:3000/menu') //получаем данные с JSON-сервера про меню
   .then(data => {
-    data.data.forEach(({
+    data.forEach(({
       img,
       altimg,
       title,
       descr,
       price
     }) => {
-      new MenuItem(img, altimg, title, descr, price, ".menu__field > .container").render();
-    });
-  }); //Sending forms to server via Fetch API and showing status messages to user
+      //деструктурируем объекты из массива menu db.json
+      new MenuItem( //передаем классу в качестве аргументов ключи объектов menu db.json
+      img, altimg, title, descr, price, ".menu__field > .container").render(); //метод класса для верстки
+    }); //можно также создавать верстку не через класс, а через обычные команды, которые мы прописали в render()
+  });
+  /* axios.get('http://localhost:3000/menu') //get-запрос при помощи библиотеки axios
+  .then(data => {
+      data.data.forEach(({img, altimg, title, descr, price}) => {
+          new MenuItem(
+              img, 
+              altimg, 
+              title, 
+              descr, 
+              price, 
+              ".menu__field > .container"
+          ).render();
+      });
+  }); */
+  //Sending forms to server via Fetch API and showing status messages to user
 
   const message = {
     loading: 'img/form/spinner.svg',
@@ -2279,6 +2282,82 @@ window.addEventListener('DOMContentLoaded', () => {
     nextSlideBtn.addEventListener('click', () => {
       changeSlideIndexByN(1);
   }); */
+  // Calculator
+
+  let sex, height, weight, age, ratio, formula;
+
+  function calcTotal() {
+    if (!sex || !height || !weight || !age || !ratio) {
+      // if user did not fill any of the required inputs, calculation cannot be performed
+      calcResult.textContent = "____";
+      return;
+    }
+
+    if (sex === "female") {
+      formula = 447.6 + 9.2 * weight + 3.1 * height - 4.3 * age;
+    } else if (sex === "male") {
+      formula = 88.36 + 13.4 * weight + 4.8 * height - 5.7 * age;
+    } // calculating result and rendering to DOM
+
+
+    calcResult.textContent = Math.ceil(formula * ratio);
+  }
+
+  calcTotal();
+
+  function getStaticInputsData(parentSelector, activeClass) {
+    const parent = document.querySelector(parentSelector);
+    const staticInputs = parent.querySelectorAll('div');
+    parent.addEventListener('click', e => {
+      if (e.target === parent) {
+        // clicking on a parent should not do anything
+        return;
+      }
+
+      if (e.target.dataset.ratio) {
+        // for inputs with activity ratio
+        ratio = +e.target.dataset.ratio;
+      } else {
+        // for inputs with female/male choice
+        sex = e.target.id;
+      } // removing active class from all static inputs except the clicked one
+
+
+      staticInputs.forEach(input => {
+        input.classList.remove(activeClass);
+      });
+      e.target.classList.add(activeClass);
+      calcTotal();
+    });
+  }
+
+  getStaticInputsData('#gender', 'calculating__choose-item_active');
+  getStaticInputsData('#activity', 'calculating__choose-item_active');
+
+  function getDynamicInputsData(selector) {
+    const input = document.querySelector(selector);
+    input.addEventListener('input', () => {
+      switch (input.id) {
+        case 'height':
+          height = +input.value;
+          break;
+
+        case 'weight':
+          weight = +input.value;
+          break;
+
+        case 'age':
+          age = +input.value;
+          break;
+      }
+
+      calcTotal();
+    });
+  }
+
+  getDynamicInputsData("#height");
+  getDynamicInputsData("#weight");
+  getDynamicInputsData("#age"); // end of calculator
 });
 
 /***/ })

@@ -2285,6 +2285,33 @@ window.addEventListener('DOMContentLoaded', () => {
   // Calculator
 
   let sex, height, weight, age, ratio, formula;
+  let previousGenderChoice = localStorage.getItem('gender');
+  let previousRatioChoice = localStorage.getItem('ratio');
+
+  if (previousGenderChoice) {
+    sex = previousGenderChoice;
+  }
+
+  if (previousRatioChoice) {
+    ratio = previousRatioChoice;
+  }
+
+  function highlightStoredInputs(parentSelector, activeClass) {
+    const parent = document.querySelector(parentSelector); // adding active class for inputs stored in local storage
+
+    if (previousGenderChoice && parentSelector === "#gender") {
+      let input = parent.querySelector(`#${previousGenderChoice}`);
+      input.classList.add(activeClass);
+    }
+
+    if (previousRatioChoice && parentSelector === "#activity") {
+      let input = parent.querySelector(`[data-ratio="${previousRatioChoice}"]`);
+      input.classList.add(activeClass);
+    }
+  }
+
+  highlightStoredInputs('#gender', 'calculating__choose-item_active');
+  highlightStoredInputs('#activity', 'calculating__choose-item_active');
 
   function calcTotal() {
     if (!sex || !height || !weight || !age || !ratio) {
@@ -2317,9 +2344,11 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.target.dataset.ratio) {
         // for inputs with activity ratio
         ratio = +e.target.dataset.ratio;
+        localStorage.setItem('ratio', ratio);
       } else {
         // for inputs with female/male choice
         sex = e.target.id;
+        localStorage.setItem('gender', sex);
       } // removing active class from all static inputs except the clicked one
 
 
@@ -2337,6 +2366,16 @@ window.addEventListener('DOMContentLoaded', () => {
   function getDynamicInputsData(selector) {
     const input = document.querySelector(selector);
     input.addEventListener('input', () => {
+      // highlighting input in red in case of non-digit input, otherwise - in green
+      if (input.value.match(/\D/g)) {
+        input.classList.add('calculating__choose-item_highlighted-error');
+        input.classList.remove('calculating__choose-item_highlighted-success');
+      } else {
+        input.classList.remove('calculating__choose-item_highlighted-error');
+        input.classList.add('calculating__choose-item_highlighted-success');
+      } // getting user input
+
+
       switch (input.id) {
         case 'height':
           height = +input.value;

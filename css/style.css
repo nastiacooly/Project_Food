@@ -394,6 +394,10 @@ a {
       .calculating__choose-item_active {
         color: #fff;
         background-color: #54ED39; }
+      .calculating__choose-item_highlighted-error {
+        border: 1px solid red; }
+      .calculating__choose-item_highlighted-success {
+        border: 1px solid #54ED39; }
     .calculating__choose_medium {
       width: 743px;
       justify-content: space-between;
